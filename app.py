@@ -59,11 +59,13 @@ def callback():
 	return signInFirebaseTemplate(custom_token, linkedInUserName,'https://media.licdn.com/dms/image/C5603AQGEYWIllW9EFQ/profile-displayphoto-shrink_200_200/0?e=1547078400&v=beta&t=dfDinhPXEijVUE5mq2L8MW3tiMn4pJNxDjXqnJDavuM','"'+cache['authorization_code']+'"')
 	
 def signInFirebaseTemplate(token, displayName, photoURL, linkedInAccessToken):
+	# These scripts are moved to Login.js in the react project to keep the meaningless hack simpler.
+	# <script src="https://www.gstatic.com/firebasejs/3.4.0/firebase.js"></script>
+	# <script src="https://cdnjs.cloudflare.com/ajax/libs/es6-promise/4.1.1/es6-promise.min.js"></script><!-- Promise Polyfill for older browsers -->
+	# <script>
+	# </script>
 
 	signInScript = '''
-	<script src="https://www.gstatic.com/firebasejs/3.4.0/firebase.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/es6-promise/4.1.1/es6-promise.min.js"></script><!-- Promise Polyfill for older browsers -->
-	<script>
 	(function(){
 		var token = \''''+token+'''\';
 		var config = {
@@ -92,17 +94,29 @@ def signInFirebaseTemplate(token, displayName, photoURL, linkedInAccessToken):
 				defaultApp.auth().signInWithCustomToken(token),
 				tempApp.delete()]).then(function() {
 			// console.log('aaa')
-			alert('Ahh, oauth!');
-			window.close(); // We're done! Closing the popup.
+			// alert('Ahh, oauth!');
+			// window.close(); // We're done! Closing the popup.
 			
+			// one more ugly hack to make the window refresh
+			window.location.reload(true); 
 			});
 		});
 		});
 	}())
-	</script>
 	'''
 	
-	return signInScript
+	return '''
+	<script>
+	(function(){
+		var targetWinow = window.opener;
+
+		// This will successfully queue a message to be sent to the popup, assuming
+		// the window hasn't changed its location.
+		targetWinow.postMessage("'''+urllib.quote(signInScript)+'''", "*");
+		window.close();
+	}())
+	</script>
+	'''
 	#.format(token=token,displayName=displayName,photoURL=photoURL,linkedInAccessToken=linkedInAccessToken)
 
 @app.route('/getinfo')
