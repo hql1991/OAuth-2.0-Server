@@ -1,5 +1,8 @@
 .DS_Store
 
+# Use * or your Firebase Service Account Credential file name
+*.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
